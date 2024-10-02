@@ -1,8 +1,6 @@
 export enum UserRole {
   NORMAL,
   ADMIN,
-  APPROVER,
-  SOLVER,
 }
 
 export enum Gender {

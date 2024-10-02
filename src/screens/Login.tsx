@@ -30,23 +30,29 @@ const Login = () => {
   };
 
   return (
-    <div className="App">
-      <span style={{ fontSize: 40, fontWeight: "bold", marginBottom: 30 }}>
-        Login
-      </span>
-      <Input label="E-mail" value={user} onChange={onChangeUser} />
-      <Input
-        label="Senha"
-        value={password}
-        onChange={onChangePassword}
-        type="password"
-      />
-      <Button onClick={handleLogin} width="200px">
-        Entrar
-      </Button>
-      <p>
-        Não tem uma conta? <a href="/register">Cadastre-se</a>
-      </p>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="login-title">Login</h2>
+        <Input
+          width="100%"
+          label="E-mail"
+          value={user}
+          onChange={onChangeUser}
+        />
+        <Input
+          width="100%"
+          label="Senha"
+          value={password}
+          onChange={onChangePassword}
+          type="password"
+        />
+        <Button onClick={handleLogin} width="100%">
+          Entrar
+        </Button>
+        <p className="register-text">
+          Não tem uma conta? <a href="/register">Cadastre-se</a>
+        </p>
+      </div>
     </div>
   );
 };

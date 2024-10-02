@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { Login } from "../screens";
+import { Login, Register } from "../screens";
 import { AuthProvider } from "../context";
 
 const AppRoutes = () => {
@@ -8,6 +8,7 @@ const AppRoutes = () => {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </Router>
     </AuthProvider>
