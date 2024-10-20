@@ -1,12 +1,15 @@
-import { Button as PrimeButton } from "primereact/button";
+import {
+  Button as PrimeButton,
+  ButtonProps as PrimeButtonProps,
+} from "primereact/button";
 import { ReactNode } from "react";
 
 type ButtonType = "primary" | "secondary";
 
-interface ButtonProps {
+interface ButtonProps extends PrimeButtonProps {
   onClick?: () => void;
   children?: ReactNode;
-  type?: ButtonType;
+  buttonType?: ButtonType;
   label?: string;
   icon?: string;
   width?: string;
@@ -16,16 +19,15 @@ const Button = ({
   onClick,
   children,
   label,
-  icon,
   width,
-  type = "primary",
+  buttonType = "primary",
 }: ButtonProps) => {
   return (
     <PrimeButton
       style={{
-        color: type === "primary" ? "#FFFFFF" : "#000000",
-        backgroundColor: type === "primary" ? "#336aea" : "#FFFFFF",
-        borderColor: type === "primary" ? "#336aea" : "#FFFFFF",
+        color: buttonType === "primary" ? "#FFFFFF" : "#000000",
+        backgroundColor: buttonType === "primary" ? "#336aea" : "#FFFFFF",
+        borderColor: buttonType === "primary" ? "#336aea" : "#FFFFFF",
         fontWeight: "bold",
         margin: "0.5rem 0rem",
         width: width ?? 150,
@@ -35,7 +37,6 @@ const Button = ({
       }}
       onClick={onClick}
       label={label}
-      icon={icon}
     >
       {children}
     </PrimeButton>

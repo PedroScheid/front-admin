@@ -70,31 +70,46 @@ const Register = () => {
   };
 
   return (
-    <div className="App">
-      <span style={{ fontSize: 40, fontWeight: "bold", marginBottom: 30 }}>
-        Registro
-      </span>
-      <Input label="Usuario" value={user} onChange={onChangeUser} />
-      <Input
-        label="Senha"
-        value={password}
-        onChange={onChangePassword}
-        type="password"
-      />
-      <Input label="Email" value={email} onChange={onChangeEmail} />
-      <Dropdown
-        options={userRoleOptions}
-        value={userRole}
-        onChange={onChangeUserRole}
-        label="Tipo de usuário"
-      />
-      <Dropdown
-        options={genderOptions}
-        value={gender}
-        onChange={onChangeGender}
-        label="Gênero"
-      />
-      <Button onClick={handleSubmit}>Cadastrar</Button>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="login-title">Registro</h2>
+        <Input
+          label="Usuário"
+          value={user}
+          onChange={onChangeUser}
+          width="100%"
+        />
+        <Input
+          label="Senha"
+          value={password}
+          onChange={onChangePassword}
+          type="password"
+          width="100%"
+        />
+        <Input
+          label="E-mail"
+          value={email}
+          onChange={onChangeEmail}
+          width="100%"
+        />
+        <Dropdown
+          options={userRoleOptions}
+          value={userRole}
+          onChange={onChangeUserRole}
+          label="Tipo de usuário"
+          width="100%"
+        />
+        <Dropdown
+          options={genderOptions}
+          value={gender}
+          onChange={onChangeGender}
+          width="100%"
+          label="Gênero"
+        />
+        <Button onClick={handleSubmit} width="100%">
+          Cadastrar
+        </Button>
+      </div>
     </div>
   );
 };

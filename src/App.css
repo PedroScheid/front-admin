@@ -1,10 +1,12 @@
 .App {
   background-color: #414650;
+  text-align: center;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   height: 100vh;
-  margin: 0;
+  overflow: auto;
+  overflow-x: hidden;
 }
 
 .login-container {

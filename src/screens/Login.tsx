@@ -22,7 +22,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       toast.success("Login bem-sucedido!");
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Erro no login:", error);
       toast.error(`Usuário ou senha incorretos`);
