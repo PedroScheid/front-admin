@@ -5,14 +5,16 @@ import "primereact/resources/themes/bootstrap4-dark-blue/theme.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Button, Input } from "../components";
+import { BASE_URL } from "../server";
+import axios from "axios";
 
 const Login = () => {
-  const [user, setUser] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const onChangeUser = (value: string) => {
-    setUser(value);
+  const onChangeEmail = (value: string) => {
+    setEmail(value);
   };
 
   const onChangePassword = (value: string) => {
@@ -21,6 +23,13 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
+      const user = {
+        email: email,
+        password: password,
+      };
+
+      const response = await axios.post(`${BASE_URL}/auth/token/`, user);
+      console.log("🚀 ~ handleLogin ~ response:", response);
       toast.success("Login bem-sucedido!");
       navigate("/home");
     } catch (error) {
@@ -36,8 +45,8 @@ const Login = () => {
         <Input
           width="100%"
           label="E-mail"
-          value={user}
-          onChange={onChangeUser}
+          value={email}
+          onChange={onChangeEmail}
         />
         <Input
           width="100%"

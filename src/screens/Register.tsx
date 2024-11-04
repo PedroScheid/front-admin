@@ -1,71 +1,62 @@
 import { useState } from "react";
 import "../App.css";
 import "primereact/resources/themes/bootstrap4-dark-blue/theme.css";
-import { Input, Button, Dropdown } from "../components";
-import { Gender, UserRole } from "../types";
-import { genderOptions, userRoleOptions } from "../utils";
+import { Input, Button } from "../components";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { BASE_URL } from "../server";
 
 const Register = () => {
-  const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [userRole, setUserRole] = useState(UserRole.NORMAL);
-  const [gender, setGender] = useState(Gender.MASCULINO);
   const navigate = useNavigate();
 
-  const onChangeUser = (value: string) => {
-    setUser(value);
-  };
+  const onChangePassword = (value: string) => setPassword(value);
+  const onChangeConfirmPassword = (value: string) => setConfirmPassword(value);
+  const onChangeEmail = (value: string) => setEmail(value);
 
-  const onChangePassword = (value: string) => {
-    setPassword(value);
-  };
-
-  const onChangeEmail = (value: string) => {
-    setEmail(value);
-  };
-
-  const onChangeUserRole = (value: UserRole) => {
-    setUserRole(value);
-  };
-
-  const onChangeGender = (value: Gender) => {
-    setGender(value);
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleSubmit = async () => {
-    if (!user) {
-      toast.error("Por favor, preencha o nome.");
+    if (!password || !confirmPassword || !email) {
+      toast.error("Todos os campos devem ser preenchidos.");
       return;
     }
 
-    if (!password) {
-      toast.error("Por favor, preencha a senha.");
+    if (!validateEmail(email)) {
+      toast.error("Por favor, insira um e-mail válido.");
       return;
     }
 
-    if (!email) {
-      toast.error("Por favor, preencha o e-mail.");
+    if (password.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("As senhas não coincidem.");
       return;
     }
 
     const newUser = {
-      nome: user,
-      senha: password,
       email: email,
-      tipo_usuario: userRole,
-      genero: gender,
+      password1: password,
+      password2: confirmPassword,
     };
-    console.log("🚀 ~ handleSubmit ~ newUser:", newUser);
 
     try {
-      navigate("/login");
+      const response = await axios.post(`${BASE_URL}/auth/register/`, newUser);
+      console.log("🚀 ~ handleSubmit ~ response:", response);
       toast.success("Usuário cadastrado com sucesso!");
+      navigate("/login");
     } catch (error) {
       console.error("Erro na requisição:", error);
-      toast.error("Erro na requisição");
+      toast.error("Erro ao cadastrar usuário");
     }
   };
 
@@ -74,9 +65,9 @@ const Register = () => {
       <div className="login-card">
         <h2 className="login-title">Registro</h2>
         <Input
-          label="Usuário"
-          value={user}
-          onChange={onChangeUser}
+          label="E-mail"
+          value={email}
+          onChange={onChangeEmail}
           width="100%"
         />
         <Input
@@ -87,25 +78,13 @@ const Register = () => {
           width="100%"
         />
         <Input
-          label="E-mail"
-          value={email}
-          onChange={onChangeEmail}
+          label="Confirmar Senha"
+          value={confirmPassword}
+          onChange={onChangeConfirmPassword}
+          type="password"
           width="100%"
         />
-        <Dropdown
-          options={userRoleOptions}
-          value={userRole}
-          onChange={onChangeUserRole}
-          label="Tipo de usuário"
-          width="100%"
-        />
-        <Dropdown
-          options={genderOptions}
-          value={gender}
-          onChange={onChangeGender}
-          width="100%"
-          label="Gênero"
-        />
+
         <Button onClick={handleSubmit} width="100%">
           Cadastrar
         </Button>
