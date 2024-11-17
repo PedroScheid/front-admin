@@ -51,12 +51,12 @@ const Funcoes = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      // Simulando exclusão bem-sucedida
-      toast.success("Treinamento deletado com sucesso!");
-      refetch(); // Atualiza a lista após exclusão
+      await axios.delete(`${BASE_URL}/api/perms/function/delete/${id}/`);
+      toast.success("Função deletada com sucesso!");
+      refetch();
     } catch (error) {
-      console.error("Erro ao excluir treinamento:", error);
-      toast.error("Erro ao excluir treinamento");
+      console.error("Erro ao excluir função:", error);
+      toast.error("Erro ao excluir função");
     }
   };
 

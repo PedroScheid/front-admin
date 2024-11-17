@@ -54,11 +54,11 @@ const SubSetores = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      // Simulando exclusão bem-sucedida
+      await axios.delete(`${BASE_URL}/api/perms/subsector/${id}/`);
       toast.success("Sub setor deletado com sucesso!");
-      refetch(); // Atualiza a lista após exclusão
+      refetch();
     } catch (error) {
-      console.error("Erro ao excluir subsetor:", error);
+      console.error("Erro ao excluir sub setor:", error);
       toast.error("Erro ao excluir sub setor");
     }
   };

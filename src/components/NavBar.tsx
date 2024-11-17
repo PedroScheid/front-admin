@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context";
 import { Menubar } from "primereact/menubar";
 import { useMemo } from "react";
+import { Splitter } from "primereact/splitter";
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -31,20 +32,21 @@ const NavBar = () => {
             location.pathname === "/relatorios" ? "secondary" : "primary"
           }
         />
-        <Button
+        {/* <Button
           label="Usuários"
           icon="pi pi-user"
           onClick={() => handleButtonClick("/usuarios")}
           buttonType={
             location.pathname === "/usuarios" ? "secondary" : "primary"
           }
-        />
+        /> */}
         <Button
           label="Cursos"
           icon="pi pi-chart-bar"
           onClick={() => handleButtonClick("/cursos")}
           buttonType={location.pathname === "/cursos" ? "secondary" : "primary"}
         />
+        <Splitter />
         <Button
           label="Setores"
           icon="pi pi-chart-bar"
