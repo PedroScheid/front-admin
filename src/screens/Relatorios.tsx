@@ -29,7 +29,43 @@ const Relatorios = () => {
     const sampleUsers: User[] = [
       {
         id: 1,
-        name: "John Doe",
+        name: "User Teste",
+        courses: [
+          {
+            id: 101,
+            title: "React Basics",
+            completionDate: new Date(),
+            expirationDate: new Date(),
+          },
+          {
+            id: 102,
+            title: "Advanced TypeScript",
+            completionDate: null,
+            expirationDate: new Date(),
+          },
+        ],
+      },
+      {
+        id: 2,
+        name: "User Teste 2",
+        courses: [
+          {
+            id: 101,
+            title: "React Basics",
+            completionDate: new Date(),
+            expirationDate: new Date(),
+          },
+          {
+            id: 102,
+            title: "Advanced TypeScript",
+            completionDate: null,
+            expirationDate: new Date(),
+          },
+        ],
+      },
+      {
+        id: 3,
+        name: "User Teste 3",
         courses: [
           {
             id: 101,
@@ -50,7 +86,7 @@ const Relatorios = () => {
   }, []);
 
   const courseCompletionData = {
-    labels: ["Completed", "In Progress", "Not Started"],
+    labels: ["Competo", "Em Andamento", "Não Iniciados"],
     datasets: [
       {
         data: [5, 2, 3],
@@ -63,7 +99,7 @@ const Relatorios = () => {
     labels: users.map((user) => user.name),
     datasets: [
       {
-        label: "Completion Rate",
+        label: "Taxa de conclusão",
         backgroundColor: "#42A5F5",
         data: users.map(
           (user) =>
@@ -79,7 +115,7 @@ const Relatorios = () => {
     labels: users.map((user) => user.name),
     datasets: [
       {
-        label: "Expiring Soon",
+        label: "Pertos de expirar",
         backgroundColor: "#FF6384",
         data: users.map(
           (user) =>
@@ -114,19 +150,19 @@ const Relatorios = () => {
           }}
         >
           <div style={{ padding: "10px", height: "100%" }}>
-            <Card title="Course Completion" style={{ height: "100%" }}>
+            <Card title="Cursos Completos" style={{ height: "100%" }}>
               <Chart type="doughnut" data={courseCompletionData} />
             </Card>
           </div>
 
           <div style={{ padding: "10px", height: "100%" }}>
-            <Card title="User Progress" style={{ height: "100%" }}>
+            <Card title="Progresso do Usuário" style={{ height: "100%" }}>
               <Chart type="bar" data={userProgressData} />
             </Card>
           </div>
 
           <div style={{ padding: "10px", height: "100%" }}>
-            <Card title="Courses Expiring Soon" style={{ height: "100%" }}>
+            <Card title="Cursos Prestes a Expirar" style={{ height: "100%" }}>
               <Chart
                 type="bar"
                 data={courseExpirationData}
@@ -137,7 +173,7 @@ const Relatorios = () => {
 
           <div style={{ padding: "10px", height: "100%" }}>
             <Card
-              title="Completion Distribution by Date"
+              title="Distribuição de Conclusão por Data"
               style={{ height: "100%" }}
             >
               <Chart
@@ -146,7 +182,7 @@ const Relatorios = () => {
                   labels: ["Jan", "Feb", "Mar", "Apr"],
                   datasets: [
                     {
-                      label: "Courses Completed",
+                      label: "Cursos Completos",
                       data: [3, 4, 1, 5],
                       fill: false,
                       borderColor: "#42A5F5",

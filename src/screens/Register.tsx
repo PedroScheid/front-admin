@@ -51,7 +51,6 @@ const Register = () => {
 
     try {
       const response = await axios.post(`${BASE_URL}/auth/register/`, newUser);
-      console.log("🚀 ~ handleSubmit ~ response:", response);
       toast.success("Usuário cadastrado com sucesso!");
       navigate("/login");
     } catch (error) {

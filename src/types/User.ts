@@ -1,20 +1,17 @@
-export enum UserRole {
-  NORMAL,
-  ADMIN,
-}
-
-export enum Gender {
-  MASCULINO,
-  FEMININO,
-}
-
 export interface Usuario {
   id: number;
   nome: string;
   senha: string;
   email: string;
-  tipo_usuario: UserRole;
-  genero: number;
-  data_criacao: Date;
-  data_exclusao: Date;
+}
+
+export interface LoginProps {
+  email: string;
+  password: string;
+}
+
+export interface RegisterUser {
+  email: string;
+  password1: string;
+  password2: string;
 }

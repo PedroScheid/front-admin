@@ -7,11 +7,16 @@ import { toast } from "react-toastify";
 import { Button, Input } from "../components";
 import { BASE_URL } from "../server";
 import axios from "axios";
+import { LoginProps } from "../types";
+import { useAuth } from "../context";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const onChangeEmail = (value: string) => {
     setEmail(value);
@@ -22,19 +27,19 @@ const Login = () => {
   };
 
   const handleLogin = async () => {
+    setIsLoading(true); // Ativa o estado de carregamento
     try {
-      const user = {
-        email: email,
-        password: password,
-      };
+      const user: LoginProps = { email, password };
 
       const response = await axios.post(`${BASE_URL}/auth/token/`, user);
-      console.log("🚀 ~ handleLogin ~ response:", response);
+      login(response.data.access, response.data.refresh);
       toast.success("Login bem-sucedido!");
-      navigate("/home");
+      navigate("/relatorios");
     } catch (error) {
       console.error("Erro no login:", error);
-      toast.error(`Usuário ou senha incorretos`);
+      toast.error("Usuário ou senha incorretos");
+    } finally {
+      setIsLoading(false); // Desativa o estado de carregamento
     }
   };
 
@@ -55,8 +60,15 @@ const Login = () => {
           onChange={onChangePassword}
           type="password"
         />
-        <Button onClick={handleLogin} width="100%">
-          Entrar
+        <Button onClick={handleLogin} width="100%" disabled={isLoading}>
+          {isLoading ? (
+            <ProgressSpinner
+              style={{ width: "20px", height: "20px" }}
+              strokeWidth="4"
+            />
+          ) : (
+            "Entrar"
+          )}
         </Button>
         <p className="register-text">
           Não tem uma conta? <a href="/register">Cadastre-se</a>

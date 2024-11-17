@@ -1,11 +1,13 @@
 import "../App.css";
 import "primereact/resources/themes/bootstrap4-dark-blue/theme.css";
-import { Button, Dropdown, Input } from "../components";
+import { Button, Input } from "../components";
 import { useState, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
+import { ProgressSpinner } from "primereact/progressspinner";
 import { toast } from "react-toastify";
-import { Gender, UserRole, Usuario } from "../types";
-import { genderOptions, userRoleOptions } from "../utils";
+import { RegisterUser, Usuario } from "../types";
+import axios from "axios";
+import { BASE_URL } from "../server";
 
 interface UsuariosDialogProps {
   visible: boolean;
@@ -20,115 +22,95 @@ const UsuariosDialog = ({
   update,
   itemToEdit,
 }: UsuariosDialogProps) => {
-  const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
   const [email, setEmail] = useState("");
-  const [userRole, setUserRole] = useState(UserRole.NORMAL);
-  const [gender, setGender] = useState(Gender.MASCULINO);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (itemToEdit) {
-      setUser(itemToEdit.nome);
       setPassword(itemToEdit.senha);
       setEmail(itemToEdit.email);
-      setUserRole(itemToEdit.tipo_usuario);
-      setGender(itemToEdit.genero);
     } else {
-      setUser("");
       setPassword("");
-      setPassword("");
+      setPassword2("");
     }
   }, [itemToEdit]);
 
-  const onChangeUser = (value: string) => {
-    setUser(value);
-  };
-
   const onChangePassword = (value: string) => {
     setPassword(value);
+  };
+
+  const onChangePassword2 = (value: string) => {
+    setPassword2(value);
   };
 
   const onChangeEmail = (value: string) => {
     setEmail(value);
   };
 
-  const onChangeUserRole = (value: UserRole) => {
-    setUserRole(value);
-  };
-
-  const onChangeGender = (value: Gender) => {
-    setGender(value);
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleSave = async () => {
-    if (!user) {
-      toast.error("Por favor, preencha o nome.");
+    if (!password || !password2 || !email) {
+      toast.error("Todos os campos devem ser preenchidos.");
       return;
     }
 
-    if (!password) {
-      toast.error("Por favor, preencha a senha.");
+    if (!validateEmail(email)) {
+      toast.error("Por favor, insira um e-mail válido.");
       return;
     }
 
-    if (!email) {
-      toast.error("Por favor, preencha o e-mail.");
+    if (password.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
 
+    if (password !== password2) {
+      toast.error("As senhas não coincidem.");
+      return;
+    }
+
+    const newUser: RegisterUser = {
+      email: email,
+      password1: password,
+      password2: password2,
+    };
+
+    setIsLoading(true); // Ativa o estado de carregamento
     try {
-      // if (itemToEdit) {
-      //   const response = await axios.put(
-      //     `${BASE_URL}/usuarios/${itemToEdit.id}`,
-      //     {
-      //       nome: user,
-      //       email: email,
-      //       tipo_usuario: userRole,
-      //       genero: gender,
-      //     }
-      //   );
-      //   if (response.status === 200) {
-      //     toast.success("Usuário atualizado com sucesso!");
-      //     await update();
-      //     closeDialog();
-      //   } else {
-      //     toast.error("Erro ao atualizar usuário");
-      //   }
-      // } else {
-      //   const response = await axios.post(`${BASE_URL}/usuarios`, {
-      //     nome: user,
-      //     senha: password,
-      //     email: email,
-      //     tipo_usuario: userRole,
-      //     genero: gender,
-      //   });
-      //   if (response.status === 201) {
-      //     toast.success("Usuário cadastrado com sucesso!");
-      //     await update();
-      //     closeDialog();
-      //   } else {
-      //     toast.error("Erro ao cadastrar usuário");
-      //   }
-      // }
-      toast.success("Usuário atualizado com sucesso!");
-      await update();
+      const response = await axios.post(`${BASE_URL}/auth/register/`, newUser);
+      toast.success("Usuário cadastrado com sucesso!");
       closeDialog();
+      await update();
     } catch (error) {
-      console.error("Erro ao cadastrar/atualizar usuário", error);
-      toast.error("Erro ao cadastrar/atualizar usuário");
+      console.error("Erro na requisição:", error);
+      toast.error("Erro ao cadastrar usuário");
+    } finally {
+      setIsLoading(false); // Desativa o estado de carregamento
     }
   };
 
   const footer = (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        gap: "1rem",
-      }}
-    >
-      <Button label="Salvar" onClick={handleSave} />
-      <Button label="Cancelar" buttonType="secondary" onClick={closeDialog} />
+    <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
+      <Button label="Salvar" onClick={handleSave} disabled={isLoading}>
+        {isLoading && (
+          <ProgressSpinner
+            style={{ width: "20px", height: "20px" }}
+            strokeWidth="4"
+          />
+        )}
+      </Button>
+      <Button
+        label="Cancelar"
+        buttonType="secondary"
+        onClick={closeDialog}
+        disabled={isLoading}
+      />
     </div>
   );
 
@@ -141,40 +123,29 @@ const UsuariosDialog = ({
       footer={footer}
     >
       <Input
-        label="Usuario"
-        value={user}
-        onChange={onChangeUser}
-        width="100%"
-      />
-      {!itemToEdit && (
-        <Input
-          label="Senha"
-          value={password}
-          onChange={onChangePassword}
-          type="password"
-          width="100%"
-        />
-      )}
-      <Input
         label="Email"
         value={email}
         onChange={onChangeEmail}
         width="100%"
       />
-      <Dropdown
-        options={userRoleOptions}
-        value={userRole}
-        onChange={onChangeUserRole}
-        label="Tipo de usuário"
-        width="100%"
-      />
-      <Dropdown
-        options={genderOptions}
-        value={gender}
-        onChange={onChangeGender}
-        label="Gênero"
-        width="100%"
-      />
+      {!itemToEdit && (
+        <>
+          <Input
+            label="Senha"
+            value={password}
+            onChange={onChangePassword}
+            type="password"
+            width="100%"
+          />
+          <Input
+            label="Confirmar Senha"
+            value={password2}
+            onChange={onChangePassword2}
+            type="password"
+            width="100%"
+          />
+        </>
+      )}
     </Dialog>
   );
 };

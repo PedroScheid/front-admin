@@ -4,12 +4,17 @@ import AppRoutes from "./routes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./context";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Importa React Query
+
+const queryClient = new QueryClient(); // Inicializa o QueryClient
 
 const App = () => {
   return (
     <AuthProvider>
-      <AppRoutes />
-      <ToastContainer />
+      <QueryClientProvider client={queryClient}>
+        <AppRoutes />
+        <ToastContainer />
+      </QueryClientProvider>
     </AuthProvider>
   );
 };
