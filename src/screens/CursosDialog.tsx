@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
-import { Checkbox } from "primereact/checkbox";
 import { toast } from "react-toastify";
-import { Curso } from "../types";
+import { Curso, Funcao } from "../types";
 import { Button, Input } from "../components";
 import { ProgressSpinner } from "primereact/progressspinner";
 import axios from "axios";
 import { BASE_URL } from "../server";
 import { useAuth } from "../context";
+import { Dropdown } from "primereact/dropdown";
+import { useQuery } from "@tanstack/react-query";
 
 interface CursosDialogProps {
   visible: boolean;
@@ -16,6 +16,17 @@ interface CursosDialogProps {
   itemToEdit?: Curso;
   update: () => void;
 }
+
+const fetchFuncoes = async (accessToken: string | null): Promise<Funcao[]> => {
+  const response = await axios.get<Funcao[]>(`${BASE_URL}/perms/function/`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return response.data;
+};
+
+const conteudoOptions = ["Vídeo", "PDF", "Imagem"];
 
 const CursosDialog = ({
   visible,
@@ -33,6 +44,12 @@ const CursosDialog = ({
   });
   const [isLoading, setIsLoading] = useState(false);
   const { accessToken } = useAuth();
+
+  const { data: funcoes = [] } = useQuery<Funcao[], Error>({
+    queryKey: ["funcoes"],
+    queryFn: () => fetchFuncoes(accessToken),
+    enabled: !!accessToken,
+  });
 
   useEffect(() => {
     if (itemToEdit) {
@@ -53,29 +70,34 @@ const CursosDialog = ({
     setCurso((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
-    if (!curso.name.trim() || !curso.course.trim()) {
-      toast.error("Nome e curso são obrigatórios.");
-      return;
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCurso((prev) => ({
+          ...prev,
+          class_file: reader.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
     }
+  };
 
-    if (isNaN(curso.sequence_in_course) || curso.sequence_in_course <= 0) {
-      toast.error("Dias para expiração deve ser um número maior que zero.");
+  const handleSave = async () => {
+    if (!curso.name.trim()) {
+      toast.error("Nome é obrigatório.");
       return;
     }
 
     setIsLoading(true);
     try {
       const token = accessToken;
-      const response = await axios.post(
-        `${BASE_URL}/courses/all/create/`,
-        curso,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`${BASE_URL}/courses/classes/`, curso, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       toast.success("Curso salvo com sucesso!");
       closeDialog();
       update();
@@ -121,20 +143,49 @@ const CursosDialog = ({
         onChange={(value) => handleInputChange("name", value)}
         width="100%"
       />
-      <Input
-        label="Curso"
-        value={curso.course}
-        onChange={(value) => handleInputChange("course", value)}
-        width="100%"
-      />
-      <Input
+      <div
+        style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
+      >
+        <span>Máquina</span>
+        <Dropdown
+          onChange={(value) => handleInputChange("course", value.value)}
+          options={funcoes}
+          value={curso.course}
+          optionValue="id"
+          optionLabel="name"
+        />
+      </div>
+      <div
+        style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
+      >
+        <span>Conteúdo</span>
+        <Dropdown
+          onChange={(value) =>
+            handleInputChange("class_file_type", value.value)
+          }
+          options={conteudoOptions}
+          value={curso.class_file_type}
+        />
+      </div>
+      <div
+        style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
+      >
+        <label htmlFor="file-upload">Arquivo</label>
+        <input
+          type="file"
+          id="file-upload"
+          onChange={handleFileUpload}
+          accept=".pdf,.mp4,.jpg,.png"
+        />
+      </div>
+      {/* <Input
         label="Dias de Expiração"
         value={curso.sequence_in_course.toString()}
         onChange={(value) =>
           handleInputChange("sequence_in_course", parseInt(value) || 0)
         }
         width="80px"
-      />
+      /> */}
     </Dialog>
   );
 };

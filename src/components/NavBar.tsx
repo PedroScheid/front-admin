@@ -56,19 +56,17 @@ const NavBar = () => {
           }
         />
         <Button
-          label="Sub Setores"
+          label="Linhas"
           icon="pi pi-chart-bar"
-          onClick={() => handleButtonClick("/subsetores")}
-          buttonType={
-            location.pathname === "/subsetores" ? "secondary" : "primary"
-          }
+          onClick={() => handleButtonClick("/linhas")}
+          buttonType={location.pathname === "/linhas" ? "secondary" : "primary"}
         />
         <Button
-          label="Funções"
+          label="Máquinas"
           icon="pi pi-chart-bar"
-          onClick={() => handleButtonClick("/funcoes")}
+          onClick={() => handleButtonClick("/maquinas")}
           buttonType={
-            location.pathname === "/funcoes" ? "secondary" : "primary"
+            location.pathname === "/maquinas" ? "secondary" : "primary"
           }
         />
       </div>

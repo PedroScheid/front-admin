@@ -15,6 +15,7 @@ import { Setor } from "../types";
 import SetoresDialog from "./SetoresDialog";
 import editIcon from "../icons/editar.png";
 import deleteIcon from "../icons/excluir.png";
+import { confirmDialog } from "primereact/confirmdialog";
 
 const fetchSetores = async (accessToken: string | null): Promise<Setor[]> => {
   const response = await axios.get<Setor[]>(`${BASE_URL}/perms/sector/`, {
@@ -51,6 +52,20 @@ const Setores = () => {
     setVisible(true);
   };
 
+  const onDelete = (sector: Setor) => {
+    confirmDialog({
+      message: `Você realmente deseja excluir o setor '${sector.name}'?`,
+      header: "Confirmação de exclusão",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger",
+      accept: () => handleDelete(sector.id),
+      acceptLabel: "Sim",
+      rejectClassName: "p-button-secondary",
+      rejectLabel: "Não",
+    });
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`${BASE_URL}/perms/sector/${id}/`, {
@@ -81,7 +96,7 @@ const Setores = () => {
     return (
       <PrimeButton
         style={{ backgroundColor: "#FF0000" }}
-        onClick={() => handleDelete(rowData.id)}
+        onClick={() => onDelete(rowData)}
       >
         <img
           src={deleteIcon}

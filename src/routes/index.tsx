@@ -28,8 +28,8 @@ const AppRoutes = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/relatorios" element={<Relatorios />} />
           <Route path="/setores" element={<Setores />} />
-          <Route path="/funcoes" element={<Funcoes />} />
-          <Route path="/subsetores" element={<SubSetores />} />
+          <Route path="/maquinas" element={<Funcoes />} />
+          <Route path="/linhas" element={<SubSetores />} />
         </Routes>
       </Router>
     </AuthProvider>

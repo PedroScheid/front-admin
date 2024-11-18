@@ -14,6 +14,7 @@ import { Funcao } from "../types";
 import FuncoesDialog from "./FuncoesDialog";
 import editIcon from "../icons/editar.png";
 import deleteIcon from "../icons/excluir.png";
+import { confirmDialog } from "primereact/confirmdialog";
 
 const fetchFuncoes = async (accessToken: string | null): Promise<Funcao[]> => {
   const response = await axios.get<Funcao[]>(`${BASE_URL}/perms/function/`, {
@@ -49,6 +50,20 @@ const Funcoes = () => {
     setVisible(true);
   };
 
+  const onDelete = (rowData: Funcao) => {
+    confirmDialog({
+      message: `Você realmente deseja excluir a função '${rowData.name}'?`,
+      header: "Confirmação de exclusão",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger",
+      accept: () => handleDelete(rowData.id),
+      acceptLabel: "Sim",
+      rejectClassName: "p-button-secondary",
+      rejectLabel: "Não",
+    });
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`${BASE_URL}/perms/function/${id}/`, {
@@ -79,7 +94,7 @@ const Funcoes = () => {
     return (
       <PrimeButton
         style={{ backgroundColor: "#FF0000" }}
-        onClick={() => handleDelete(rowData.id)}
+        onClick={() => onDelete(rowData)}
       >
         <img
           src={deleteIcon}
