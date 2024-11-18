@@ -54,7 +54,11 @@ const SubSetores = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${BASE_URL}/api/perms/subsector/${id}/`);
+      await axios.delete(`${BASE_URL}/perms/subsector/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       toast.success("Sub setor deletado com sucesso!");
       refetch();
     } catch (error) {

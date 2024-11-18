@@ -54,12 +54,21 @@ const SetoresDialog = ({
     setIsLoading(true);
     try {
       const token = accessToken;
-      const response = await axios.post(`${BASE_URL}/perms/sector/`, setor, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      toast.success("Setor salvo com sucesso!");
+      if (itemToEdit) {
+        await axios.put(`${BASE_URL}/perms/sector/${itemToEdit.id}/`, setor, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        toast.success("Setor editado com sucesso!");
+      } else {
+        await axios.post(`${BASE_URL}/perms/sector/`, setor, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        toast.success("Setor criado com sucesso!");
+      }
       closeDialog();
       update();
     } catch (error) {

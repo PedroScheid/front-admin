@@ -83,21 +83,30 @@ const SubSetoresDialog = ({
     setIsLoading(true);
     try {
       const token = accessToken;
-      const response = await axios.post(
-        `${BASE_URL}/perms/subsector/`,
-        subSetor,
-        {
+      if (itemToEdit) {
+        await axios.put(
+          `${BASE_URL}/perms/subsector/${itemToEdit.id}/`,
+          subSetor,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        toast.success("Sub setor editado com sucesso!");
+      } else {
+        await axios.post(`${BASE_URL}/perms/subsector/`, subSetor, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
-      toast.success("Sub setor salvo com sucesso!");
+        });
+        toast.success("Sub setor criado com sucesso!");
+      }
       closeDialog();
       update();
     } catch (error) {
       console.error("Erro ao salvar Sub setor:", error);
-      toast.error("Erro ao salvar Sub setor");
+      toast.error("Erro ao salvar sub setor");
     } finally {
       setIsLoading(false); // Desativa o estado de carregamento
     }

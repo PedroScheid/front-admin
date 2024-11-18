@@ -53,7 +53,11 @@ const Setores = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${BASE_URL}/api/perms/sector/${id}/`);
+      await axios.delete(`${BASE_URL}/perms/sector/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       toast.success("Setor deletado com sucesso!");
       refetch();
     } catch (error) {

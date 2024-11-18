@@ -59,16 +59,25 @@ const FuncoesDialog = ({
     setIsLoading(true);
     try {
       const token = accessToken;
-      const response = await axios.post(
-        `${BASE_URL}/perms/function/create/`,
-        funcao,
-        {
+      if (itemToEdit) {
+        await axios.put(
+          `${BASE_URL}/perms/function/${itemToEdit.id}/`,
+          funcao,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        toast.success("Função editada com sucesso!");
+      } else {
+        await axios.post(`${BASE_URL}/perms/function/`, funcao, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
-      toast.success("Função salva com sucesso!");
+        });
+        toast.success("Função criada com sucesso!");
+      }
       closeDialog();
       update();
     } catch (error) {
