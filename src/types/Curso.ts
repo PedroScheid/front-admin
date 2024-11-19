@@ -26,6 +26,7 @@ export interface Funcao {
   id: string;
   name: string;
   description: string;
+  subsector: string;
   date_created: Date;
   is_active: boolean;
 }

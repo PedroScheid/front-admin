@@ -26,7 +26,11 @@ const fetchFuncoes = async (accessToken: string | null): Promise<Funcao[]> => {
   return response.data;
 };
 
-const conteudoOptions = ["Vídeo", "PDF", "Imagem"];
+const conteudoOptions = [
+  { label: "Image", value: "image" },
+  { label: "Video", value: "video" },
+  { label: "PDF", value: "pdf" },
+];
 
 const CursosDialog = ({
   visible,
@@ -40,7 +44,7 @@ const CursosDialog = ({
     class_file_type: "",
     course: "",
     id: "",
-    sequence_in_course: 0,
+    sequence_in_course: 1,
   });
   const [isLoading, setIsLoading] = useState(false);
   const { accessToken } = useAuth();
@@ -61,7 +65,7 @@ const CursosDialog = ({
         class_file_type: "",
         course: "",
         id: "",
-        sequence_in_course: 0,
+        sequence_in_course: 1,
       });
     }
   }, [itemToEdit]);
@@ -73,14 +77,13 @@ const CursosDialog = ({
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setCurso((prev) => ({
-          ...prev,
-          class_file: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append("class_file", file);
+
+      setCurso((prev) => ({
+        ...prev,
+        formData,
+      }));
     }
   };
 
@@ -165,6 +168,8 @@ const CursosDialog = ({
           }
           options={conteudoOptions}
           value={curso.class_file_type}
+          optionLabel="label"
+          optionValue="value"
         />
       </div>
       <div

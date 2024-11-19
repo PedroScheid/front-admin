@@ -32,19 +32,20 @@ const NavBar = () => {
             location.pathname === "/relatorios" ? "secondary" : "primary"
           }
         />
-        {/* <Button
-          label="Usuários"
-          icon="pi pi-user"
-          onClick={() => handleButtonClick("/usuarios")}
-          buttonType={
-            location.pathname === "/usuarios" ? "secondary" : "primary"
-          }
-        /> */}
+        <Splitter />
         <Button
           label="Cursos"
           icon="pi pi-chart-bar"
           onClick={() => handleButtonClick("/cursos")}
           buttonType={location.pathname === "/cursos" ? "secondary" : "primary"}
+        />
+        <Button
+          label="Máquinas de Usuários"
+          icon="pi pi-chart-bar"
+          onClick={() => handleButtonClick("/usuarios")}
+          buttonType={
+            location.pathname === "/usuarios" ? "secondary" : "primary"
+          }
         />
         <Splitter />
         <Button

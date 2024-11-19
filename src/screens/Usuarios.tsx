@@ -5,60 +5,72 @@ import { Button, NavBar } from "../components";
 import { DataTable } from "primereact/datatable";
 import { Button as PrimeButton } from "primereact/button";
 import { Column } from "primereact/column";
-import { Usuario } from "../types";
+import { UsuarioProps } from "../types";
 import { toast } from "react-toastify";
 import UsuariosDialog from "./UsuariosDialog";
+import { useQuery } from "@tanstack/react-query";
+import { BASE_URL } from "../server";
+import axios from "axios";
+import { useAuth } from "../context";
+import editIcon from "../icons/editar.png";
+import deleteIcon from "../icons/excluir.png";
+import { confirmDialog } from "primereact/confirmdialog";
+
+const fetchUsuarios = async (
+  accessToken: string | null
+): Promise<UsuarioProps[]> => {
+  const response = await axios.get<UsuarioProps[]>(
+    `${BASE_URL}/perms/user_function/`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return response.data;
+};
 
 const Usuarios = () => {
   const [visible, setVisible] = useState(false);
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [editingItem, setEditingItem] = useState<Usuario>();
+  const [editingItem, setEditingItem] = useState<UsuarioProps>();
+  const { accessToken } = useAuth();
 
-  const fetchUsuarios = async () => {
-    try {
-      //   const response = await fetch(`${BASE_URL}/usuarios`);
-      //   const data = await response.json();
-      //   setUsuarios(data);
-    } catch (error) {
-      console.error("Erro ao buscar usuarios:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsuarios();
-  }, []);
+  const {
+    data: usuarios = [],
+    refetch,
+    isLoading,
+  } = useQuery<UsuarioProps[], Error>({
+    queryKey: ["usuario"],
+    queryFn: () => fetchUsuarios(accessToken),
+    enabled: !!accessToken,
+  });
 
   const handleCloseDialog = () => {
     setVisible(false);
     setEditingItem(undefined);
   };
 
-  const handleEdit = (value: Usuario) => {
+  const handleEdit = (value: UsuarioProps) => {
     setEditingItem(value);
     setVisible(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const onDelete = (user: UsuarioProps) => {
+    confirmDialog({
+      message: `Você realmente deseja excluir o usuário '${user.user.email}'?`,
+      header: "Confirmação de exclusão",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger",
+      accept: () => handleDelete(user.id),
+      acceptLabel: "Sim",
+      rejectClassName: "p-button-secondary",
+      rejectLabel: "Não",
+    });
+  };
+
+  const handleDelete = async (id: string) => {
     try {
-      //   const response = await fetch(
-      //     `${BASE_URL}/usuarios/${id}?idLoggedUser=${idLoggedUser}`,
-      //     {
-      //       method: "DELETE",
-      //     }
-      //   );
-
-      //   if (!response.ok) {
-      //     const errorData = await response.json();
-      //     if (response.status === 400 && errorData.error) {
-      //       toast.error(errorData.error);
-      //     } else {
-      //       throw new Error("Erro ao excluir usuário");
-      //     }
-      //     return;
-      //   }
-
-      //   const updatedUsuarios = usuarios.filter((tipo) => tipo.id !== id);
-      //   setUsuarios(updatedUsuarios);
       toast.success("Usuário deletado com sucesso!");
     } catch (error) {
       console.error("Erro ao excluir Usuário:", error);
@@ -66,23 +78,31 @@ const Usuarios = () => {
     }
   };
 
-  const editBody = (rowData: Usuario) => {
+  const editBody = (rowData: UsuarioProps) => {
     return (
       <PrimeButton
-        icon="pi pi-pencil"
-        style={{ backgroundColor: "#FFFFFF", borderColor: "#FFFFFF" }}
+        style={{ backgroundColor: "#FFFFFF" }}
         onClick={() => handleEdit(rowData)}
-      />
+      >
+        <img src={editIcon} alt="edit-icon" />
+      </PrimeButton>
     );
   };
 
-  const deleteBody = (rowData: Usuario) => {
+  const deleteBody = (rowData: UsuarioProps) => {
     return (
       <PrimeButton
-        icon="pi pi-trash"
-        style={{ backgroundColor: "#FF0000", borderColor: "#FF0000" }}
-        onClick={() => handleDelete(rowData.id)}
-      />
+        style={{ backgroundColor: "#FF0000" }}
+        onClick={() => onDelete(rowData)}
+      >
+        <img
+          src={deleteIcon}
+          alt="delete-icon"
+          style={{
+            filter: "invert(1)",
+          }}
+        />
+      </PrimeButton>
     );
   };
 
@@ -90,6 +110,7 @@ const Usuarios = () => {
     <div className="App">
       <NavBar />
       <DataTable
+        loading={isLoading}
         value={usuarios}
         tableStyle={{ width: "100vw", padding: "1rem" }}
         dataKey="id"
@@ -110,7 +131,7 @@ const Usuarios = () => {
           visible={visible}
           closeDialog={handleCloseDialog}
           itemToEdit={editingItem}
-          update={fetchUsuarios}
+          update={refetch}
         />
       )}
     </div>

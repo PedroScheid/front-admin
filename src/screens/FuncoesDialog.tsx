@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
 import { toast } from "react-toastify";
-import { Funcao } from "../types";
+import { Funcao, SubSetor } from "../types";
 import { Button, Input } from "../components";
 import { Checkbox } from "primereact/checkbox";
 import { ProgressSpinner } from "primereact/progressspinner";
 import axios from "axios";
 import { BASE_URL } from "../server";
 import { useAuth } from "../context";
+import { useQuery } from "@tanstack/react-query";
+import { Dropdown } from "primereact/dropdown";
 
 interface FuncoesDialogProps {
   visible: boolean;
@@ -15,6 +17,17 @@ interface FuncoesDialogProps {
   itemToEdit?: Funcao;
   update: () => void;
 }
+
+const fetchSubSetores = async (
+  accessToken: string | null
+): Promise<SubSetor[]> => {
+  const response = await axios.get<SubSetor[]>(`${BASE_URL}/perms/subsector/`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return response.data;
+};
 
 const FuncoesDialog = ({
   visible,
@@ -26,11 +39,18 @@ const FuncoesDialog = ({
     id: "",
     name: "",
     description: "",
+    subsector: "",
     date_created: new Date(),
     is_active: true,
   });
   const [isLoading, setIsLoading] = useState(false);
   const { accessToken } = useAuth();
+
+  const { data: subSetores = [] } = useQuery<SubSetor[], Error>({
+    queryKey: ["subsetor"],
+    queryFn: () => fetchSubSetores(accessToken),
+    enabled: !!accessToken,
+  });
 
   useEffect(() => {
     if (itemToEdit) {
@@ -40,6 +60,7 @@ const FuncoesDialog = ({
         id: "",
         name: "",
         description: "",
+        subsector: "",
         date_created: new Date(),
         is_active: true,
       });
@@ -128,6 +149,18 @@ const FuncoesDialog = ({
         onChange={(value) => handleInputChange("description", value)}
         width="100%"
       />
+      <div
+        style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
+      >
+        <span>Linha</span>
+        <Dropdown
+          onChange={(value) => handleInputChange("subsector", value.value)}
+          options={subSetores}
+          value={funcao.subsector}
+          optionValue="id"
+          optionLabel="name"
+        />
+      </div>
       <div
         style={{
           gap: 10,

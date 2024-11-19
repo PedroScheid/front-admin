@@ -113,6 +113,7 @@ const Setores = () => {
     <div className="App">
       <NavBar />
       <DataTable
+        loading={isLoading}
         value={setores}
         tableStyle={{ width: "100vw", padding: "1rem" }}
         dataKey="id"
@@ -123,7 +124,6 @@ const Setores = () => {
             onClick={() => setVisible(true)}
           />
         }
-        loading={isLoading}
       >
         <Column body={editBody} align="left" bodyStyle={{ width: 0 }} />
         <Column body={deleteBody} align="left" />
