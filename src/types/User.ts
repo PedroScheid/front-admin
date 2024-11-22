@@ -57,3 +57,10 @@ export interface UsuarioCompleto {
   last_login: Date;
   email: string;
 }
+
+export interface UserFunction {
+  user: string;
+  function: string;
+  permission_type: string;
+  is_obsolete: boolean;
+}

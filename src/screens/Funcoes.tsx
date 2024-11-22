@@ -10,7 +10,7 @@ import axios from "axios";
 import { BASE_URL } from "../server";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../context";
-import { Funcao } from "../types";
+import { Funcao, SubSetor } from "../types";
 import FuncoesDialog from "./FuncoesDialog";
 import editIcon from "../icons/editar.png";
 import deleteIcon from "../icons/excluir.png";
@@ -18,6 +18,17 @@ import { confirmDialog } from "primereact/confirmdialog";
 
 const fetchFuncoes = async (accessToken: string | null): Promise<Funcao[]> => {
   const response = await axios.get<Funcao[]>(`${BASE_URL}/perms/function/`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return response.data;
+};
+
+const fetchSubSetores = async (
+  accessToken: string | null
+): Promise<SubSetor[]> => {
+  const response = await axios.get<SubSetor[]>(`${BASE_URL}/perms/subsector/`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -37,6 +48,12 @@ const Funcoes = () => {
   } = useQuery<Funcao[], Error>({
     queryKey: ["funcoes"],
     queryFn: () => fetchFuncoes(accessToken),
+    enabled: !!accessToken,
+  });
+
+  const { data: subSetores = [] } = useQuery<SubSetor[], Error>({
+    queryKey: ["subsetor"],
+    queryFn: () => fetchSubSetores(accessToken),
     enabled: !!accessToken,
   });
 
@@ -127,6 +144,12 @@ const Funcoes = () => {
     );
   };
 
+  const getSubSetor = (rowData: Funcao) => {
+    return subSetores.length > 0
+      ? subSetores.find((s) => s.id === rowData.subsector)?.name
+      : "";
+  };
+
   return (
     <div className="App">
       <NavBar />
@@ -147,6 +170,11 @@ const Funcoes = () => {
         <Column body={deleteBody} align="left" />
         <Column field="name" header="Nome" />
         <Column field="description" header="Descrição" />
+        <Column
+          field="description"
+          header="Sub Setor"
+          body={(d) => getSubSetor(d)}
+        />
         <Column
           field="is_active"
           header="Ativo"

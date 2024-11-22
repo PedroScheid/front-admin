@@ -6,6 +6,7 @@ import {
   Register,
   Relatorios,
   Cursos,
+  MaquinasUsuarios,
   Usuarios,
 } from "../screens";
 import { AuthProvider } from "../context";
@@ -24,6 +25,7 @@ const AppRoutes = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/cursos" element={<Cursos />} />
           <Route path="/estatisticas" element={<Estatisticas />} />
+          <Route path="/maquinas-usuarios" element={<MaquinasUsuarios />} />
           <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/home" element={<Home />} />
           <Route path="/relatorios" element={<Relatorios />} />

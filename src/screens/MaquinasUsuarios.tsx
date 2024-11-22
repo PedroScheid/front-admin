@@ -15,7 +15,6 @@ import { useAuth } from "../context";
 import editIcon from "../icons/editar.png";
 import deleteIcon from "../icons/excluir.png";
 import { confirmDialog } from "primereact/confirmdialog";
-import UsuariosDialog from "./UsuariosDialog";
 
 const fetchUsuarios = async (
   accessToken: string | null
@@ -44,9 +43,9 @@ const fetchUsuariosCompleto = async (
   return response.data;
 };
 
-const Usuarios = () => {
+const MaquinasUsuarios = () => {
   const [visible, setVisible] = useState(false);
-  const [editingItem, setEditingItem] = useState<UsuarioCompleto>();
+  const [editingItem, setEditingItem] = useState<UsuarioProps>();
   const { accessToken } = useAuth();
 
   const {
@@ -64,21 +63,20 @@ const Usuarios = () => {
     queryFn: () => fetchUsuariosCompleto(accessToken),
     enabled: !!accessToken,
   });
-  console.log("🚀 ~ Usuarios ~ usuariosCompleto:", usuariosCompleto);
 
   const handleCloseDialog = () => {
     setVisible(false);
     setEditingItem(undefined);
   };
 
-  const handleEdit = (value: UsuarioCompleto) => {
+  const handleEdit = (value: UsuarioProps) => {
     setEditingItem(value);
     setVisible(true);
   };
 
-  const onDelete = (user: UsuarioCompleto) => {
+  const onDelete = (user: UsuarioProps) => {
     confirmDialog({
-      message: `Você realmente deseja excluir o usuário '${user.email}'?`,
+      message: `Você realmente deseja excluir o usuário '${user.user.email}'?`,
       header: "Confirmação de exclusão",
       icon: "pi pi-info-circle",
       defaultFocus: "reject",
@@ -105,7 +103,7 @@ const Usuarios = () => {
     }
   };
 
-  const editBody = (rowData: UsuarioCompleto) => {
+  const editBody = (rowData: UsuarioProps) => {
     return (
       <PrimeButton
         style={{ backgroundColor: "#FFFFFF" }}
@@ -116,7 +114,7 @@ const Usuarios = () => {
     );
   };
 
-  const deleteBody = (rowData: UsuarioCompleto) => {
+  const deleteBody = (rowData: UsuarioProps) => {
     return (
       <PrimeButton
         style={{ backgroundColor: "#FF0000" }}
@@ -135,12 +133,18 @@ const Usuarios = () => {
 
   const getAdjustedDate = (date: string) => new Date(date).toLocaleString();
 
+  const getUserName = (user: UsuarioProps) => {
+    return usuariosCompleto.length > 0
+      ? usuariosCompleto.find((u) => u.id === user.user.id)?.name ?? ""
+      : "";
+  };
+
   return (
     <div className="App">
       <NavBar />
       <DataTable
         loading={isLoading}
-        value={usuariosCompleto}
+        value={usuarios}
         tableStyle={{ width: "100vw", padding: "1rem" }}
         dataKey="id"
         header={
@@ -153,8 +157,9 @@ const Usuarios = () => {
       >
         <Column body={editBody} align="left" bodyStyle={{ width: 0 }} />
         <Column body={deleteBody} align="left" />
-        <Column field="name" header="Nome" />
-        <Column field="email" header="Email" />
+        <Column header="Nome" body={(rowData) => getUserName(rowData)} />
+        <Column field="user.email" header="Email" />
+        <Column field="function.name" header="Máquina" />
         <Column
           field="date_created"
           header="Data de Criação"
@@ -162,7 +167,7 @@ const Usuarios = () => {
         />
       </DataTable>
       {visible && (
-        <UsuariosDialog
+        <MaquinasUsuariosDialog
           visible={visible}
           closeDialog={handleCloseDialog}
           itemToEdit={editingItem}
@@ -173,4 +178,4 @@ const Usuarios = () => {
   );
 };
 
-export default Usuarios;
+export default MaquinasUsuarios;

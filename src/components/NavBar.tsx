@@ -42,6 +42,14 @@ const NavBar = () => {
         <Button
           label="Máquinas de Usuários"
           icon="pi pi-chart-bar"
+          onClick={() => handleButtonClick("/maquinas-usuarios")}
+          buttonType={
+            location.pathname === "/maquinas-usuarios" ? "secondary" : "primary"
+          }
+        />
+        <Button
+          label="Usuários"
+          icon="pi pi-chart-bar"
           onClick={() => handleButtonClick("/usuarios")}
           buttonType={
             location.pathname === "/usuarios" ? "secondary" : "primary"
