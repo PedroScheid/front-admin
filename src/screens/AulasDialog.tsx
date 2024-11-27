@@ -19,7 +19,7 @@ interface CursosDialogProps {
 
 const fetchCursos = async (accessToken: string | null): Promise<Curso[]> => {
   const response = await axios.get<Curso[]>(
-    `${BASE_URL}//courses/courses/admin/`,
+    `${BASE_URL}/courses/courses/admin/`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
