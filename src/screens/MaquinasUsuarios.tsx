@@ -133,12 +133,6 @@ const MaquinasUsuarios = () => {
 
   const getAdjustedDate = (date: string) => new Date(date).toLocaleString();
 
-  const getUserName = (user: UsuarioProps) => {
-    return usuariosCompleto.length > 0
-      ? usuariosCompleto.find((u) => u.id === user.user.id)?.name ?? ""
-      : "";
-  };
-
   return (
     <div className="App">
       <NavBar />
@@ -157,7 +151,6 @@ const MaquinasUsuarios = () => {
       >
         <Column body={editBody} align="left" bodyStyle={{ width: 0 }} />
         <Column body={deleteBody} align="left" />
-        <Column header="Nome" body={(rowData) => getUserName(rowData)} />
         <Column field="user.email" header="Email" />
         <Column field="function.name" header="Máquina" />
         <Column

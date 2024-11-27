@@ -40,6 +40,12 @@ const NavBar = () => {
           buttonType={location.pathname === "/cursos" ? "secondary" : "primary"}
         />
         <Button
+          label="Aulas"
+          icon="pi pi-chart-bar"
+          onClick={() => handleButtonClick("/aulas")}
+          buttonType={location.pathname === "/aulas" ? "secondary" : "primary"}
+        />
+        <Button
           label="Máquinas de Usuários"
           icon="pi pi-chart-bar"
           onClick={() => handleButtonClick("/maquinas-usuarios")}

@@ -85,6 +85,7 @@ const MaquinasUsuariosDialog = ({
     queryFn: () => fetchUsuarios(accessToken),
     enabled: !!accessToken,
   });
+  console.log("🚀 ~ usuarios:", usuarios);
 
   const { data: usuariosFunction = [] } = useQuery<UsuarioProps[], Error>({
     queryKey: ["usuario"],
@@ -207,7 +208,7 @@ const MaquinasUsuariosDialog = ({
             options={usuarios}
             value={usuario.user.id}
             optionValue="id"
-            optionLabel="name"
+            optionLabel="email"
           />
         </div>
       ) : (
@@ -236,22 +237,6 @@ const MaquinasUsuariosDialog = ({
           optionLabel="name"
         />
       </div>
-      {/* <div
-        style={{
-          gap: 10,
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          marginTop: 10,
-        }}
-      >
-        <Checkbox
-          title="Obsoleto"
-          checked={usuario.is_obsolete}
-          onChange={(value) => handleInputChange("is_obsolete", value.checked)}
-        />
-        <span>Obsoleto</span>
-      </div> */}
     </Dialog>
   );
 };

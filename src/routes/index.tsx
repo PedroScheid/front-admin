@@ -13,6 +13,7 @@ import { AuthProvider } from "../context";
 import Setores from "../screens/Setores";
 import Funcoes from "../screens/Funcoes";
 import SubSetores from "../screens/SubSetores";
+import Aulas from "../screens/Aulas";
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
           <Route path="/cursos" element={<Cursos />} />
+          <Route path="/aulas" element={<Aulas />} />
           <Route path="/estatisticas" element={<Estatisticas />} />
           <Route path="/maquinas-usuarios" element={<MaquinasUsuarios />} />
           <Route path="/usuarios" element={<Usuarios />} />

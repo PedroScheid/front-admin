@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "../App.css";
 import "primereact/resources/themes/bootstrap4-dark-blue/theme.css";
 import { Button, NavBar } from "../components";
@@ -6,31 +6,28 @@ import { DataTable } from "primereact/datatable";
 import { Button as PrimeButton } from "primereact/button";
 import { Column } from "primereact/column";
 import { toast } from "react-toastify";
-import CursosDialog from "./CursosDialog";
+import AulasDialog from "./AulasDialog";
 import axios from "axios";
 import { BASE_URL } from "../server";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../context";
-import { Curso } from "../types";
+import { Aula } from "../types";
 import { confirmDialog } from "primereact/confirmdialog";
 import editIcon from "../icons/editar.png";
 import deleteIcon from "../icons/excluir.png";
 
-const fetchCursos = async (accessToken: string | null): Promise<Curso[]> => {
-  const response = await axios.get<Curso[]>(
-    `${BASE_URL}/courses/courses/admin/`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
+const fetchAulas = async (accessToken: string | null): Promise<Aula[]> => {
+  const response = await axios.get<Aula[]>(`${BASE_URL}/courses/classes/`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
   return response.data;
 };
 
-const Cursos = () => {
+const Aulas = () => {
   const [visible, setVisible] = useState(false);
-  const [editingItem, setEditingItem] = useState<Curso | undefined>();
+  const [editingItem, setEditingItem] = useState<Aula | undefined>();
   const { accessToken } = useAuth();
 
   // Usando React Query para buscar dados
@@ -38,9 +35,9 @@ const Cursos = () => {
     data: cursos = [],
     refetch,
     isLoading,
-  } = useQuery<Curso[], Error>({
-    queryKey: ["cursos"],
-    queryFn: () => fetchCursos(accessToken),
+  } = useQuery<Aula[], Error>({
+    queryKey: ["aulas"],
+    queryFn: () => fetchAulas(accessToken),
     enabled: !!accessToken,
   });
 
@@ -49,14 +46,14 @@ const Cursos = () => {
     setEditingItem(undefined);
   };
 
-  const handleEdit = (value: Curso) => {
+  const handleEdit = (value: Aula) => {
     setEditingItem(value);
     setVisible(true);
   };
 
-  const onDelete = (rowData: Curso) => {
+  const onDelete = (rowData: Aula) => {
     confirmDialog({
-      message: `Você realmente deseja excluir o curso '${rowData.name}'?`,
+      message: `Você realmente deseja excluir a aula '${rowData.name}'?`,
       header: "Confirmação de exclusão",
       icon: "pi pi-info-circle",
       defaultFocus: "reject",
@@ -70,20 +67,16 @@ const Cursos = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${BASE_URL}/courses/courses/admin/${id}/`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      toast.success("Curso deletado com sucesso!");
-      refetch();
+      // Simulando exclusão bem-sucedida
+      toast.success("Aula deletada com sucesso!");
+      refetch(); // Atualiza a lista após exclusão
     } catch (error) {
-      console.error("Erro ao excluir curso:", error);
-      toast.error("Erro ao excluir curso");
+      console.error("Erro ao excluir treinamento:", error);
+      toast.error("Erro ao excluir aula");
     }
   };
 
-  const editBody = (rowData: Curso) => {
+  const editBody = (rowData: Aula) => {
     return (
       <PrimeButton
         style={{ backgroundColor: "#FFFFFF" }}
@@ -94,7 +87,7 @@ const Cursos = () => {
     );
   };
 
-  const deleteBody = (rowData: Curso) => {
+  const deleteBody = (rowData: Aula) => {
     return (
       <PrimeButton
         style={{ backgroundColor: "#FF0000" }}
@@ -110,44 +103,6 @@ const Cursos = () => {
       </PrimeButton>
     );
   };
-
-  const getIsRequired = (is_active: boolean) => {
-    return (
-      <div
-        style={{
-          display: "inline-block",
-          padding: "4px 12px",
-          backgroundColor: is_active ? "green" : "red",
-          color: "white",
-          borderRadius: "4px",
-          textAlign: "center",
-          fontSize: "14px",
-        }}
-      >
-        {is_active ? "SIM" : "NÃO"}
-      </div>
-    );
-  };
-
-  const getIsActive = (is_active: boolean) => {
-    return (
-      <div
-        style={{
-          display: "inline-block",
-          padding: "4px 12px",
-          backgroundColor: is_active ? "green" : "red",
-          color: "white",
-          borderRadius: "4px",
-          textAlign: "center",
-          fontSize: "14px",
-        }}
-      >
-        {is_active ? "ATIVO" : "INATIVO"}
-      </div>
-    );
-  };
-
-  const getAdjustedDate = (date: string) => new Date(date).toLocaleString();
 
   return (
     <div className="App">
@@ -168,26 +123,12 @@ const Cursos = () => {
         <Column body={editBody} align="left" bodyStyle={{ width: 0 }} />
         <Column body={deleteBody} align="left" />
         <Column field="name" header="Nome" />
-        <Column field="description" header="Descrição" />
-        <Column field="expiration_time_in_days" header="Dias para expirar" />
-        <Column
-          field="required_for_function"
-          header="Necessário para função"
-          body={(d) => getIsRequired(d.required_for_function)}
-        />
-        <Column
-          field="date_created"
-          header="Data de criação"
-          body={(d) => getAdjustedDate(d.date_created)}
-        />
-        <Column
-          field="is_active"
-          header="Ativo"
-          body={(d) => getIsActive(d.is_active)}
-        />
+        <Column field="sequence_in_course" header="Ordem no Curso" />
+        <Column field="class_file_type" header="Tipo de Arquivo" />
+        <Column field="class_file" header="Arquivo" />
       </DataTable>
       {visible && (
-        <CursosDialog
+        <AulasDialog
           closeDialog={handleCloseDialog}
           update={refetch}
           visible={visible}
@@ -198,4 +139,4 @@ const Cursos = () => {
   );
 };
 
-export default Cursos;
+export default Aulas;

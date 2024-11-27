@@ -97,11 +97,11 @@ const Usuarios = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      toast.success("Máquina do usuário deletada com sucesso!");
+      toast.success("Usuário deletada com sucesso!");
       refetch();
     } catch (error) {
-      console.error("Erro ao excluir máquina do usuário:", error);
-      toast.error("Erro ao excluir máquina do usuário");
+      console.error("Erro ao excluir usuário:", error);
+      toast.error("Erro ao excluir usuário");
     }
   };
 

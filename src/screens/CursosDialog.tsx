@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
 import { toast } from "react-toastify";
-import { Curso, Funcao } from "../types";
+import { Curso } from "../types";
 import { Button, Input } from "../components";
 import { ProgressSpinner } from "primereact/progressspinner";
 import axios from "axios";
 import { BASE_URL } from "../server";
 import { useAuth } from "../context";
-import { Dropdown } from "primereact/dropdown";
-import { useQuery } from "@tanstack/react-query";
+import { Checkbox } from "primereact/checkbox";
 
 interface CursosDialogProps {
   visible: boolean;
@@ -16,21 +15,6 @@ interface CursosDialogProps {
   itemToEdit?: Curso;
   update: () => void;
 }
-
-const fetchFuncoes = async (accessToken: string | null): Promise<Funcao[]> => {
-  const response = await axios.get<Funcao[]>(`${BASE_URL}/perms/function/`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  return response.data;
-};
-
-const conteudoOptions = [
-  { label: "Image", value: "image" },
-  { label: "Video", value: "video" },
-  { label: "PDF", value: "pdf" },
-];
 
 const CursosDialog = ({
   visible,
@@ -40,22 +24,19 @@ const CursosDialog = ({
 }: CursosDialogProps) => {
   const [curso, setCurso] = useState<Curso>({
     name: "",
-    class_file: "",
-    class_file_type: "",
-    course: "",
+    description: "",
+    created_by: "",
+    date_created: new Date(),
+    expiration_time_in_days: 0,
     id: "",
-    sequence_in_course: 1,
+    is_active: true,
+    last_modified_date: new Date(),
+    modified_by: "",
+    required_for_function: true,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [isFileLoading, setIsFileLoading] = useState(false);
 
   const { accessToken } = useAuth();
-
-  const { data: funcoes = [] } = useQuery<Funcao[], Error>({
-    queryKey: ["funcoes"],
-    queryFn: () => fetchFuncoes(accessToken),
-    enabled: !!accessToken,
-  });
 
   useEffect(() => {
     if (itemToEdit) {
@@ -63,11 +44,15 @@ const CursosDialog = ({
     } else {
       setCurso({
         name: "",
-        class_file: "",
-        class_file_type: "",
-        course: "",
+        description: "",
+        created_by: "",
+        date_created: new Date(),
+        expiration_time_in_days: 0,
         id: "",
-        sequence_in_course: 1,
+        is_active: true,
+        last_modified_date: new Date(),
+        modified_by: "",
+        required_for_function: true,
       });
     }
   }, [itemToEdit]);
@@ -76,48 +61,50 @@ const CursosDialog = ({
     setCurso((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-
-      setIsFileLoading(true); // Inicia o estado de carregamento
-
-      reader.onload = () => {
-        if (reader.result) {
-          const base64String = reader.result.toString().split(",")[1]; // Extrai o conteúdo base64
-          setCurso((prev) => ({
-            ...prev,
-            class_file: base64String, // Salva o arquivo como base64
-          }));
-          toast.success("Arquivo carregado com sucesso!"); // Mensagem de sucesso
-        }
-        setIsFileLoading(false); // Finaliza o estado de carregamento
-      };
-
-      reader.onerror = () => {
-        toast.error("Erro ao processar o arquivo.");
-        setIsFileLoading(false); // Finaliza o estado de carregamento mesmo em erro
-      };
-
-      reader.readAsDataURL(file); // Lê o arquivo como Data URL (base64)
-    }
-  };
   const handleSave = async () => {
     if (!curso.name.trim()) {
       toast.error("Nome é obrigatório.");
       return;
     }
 
+    const expirationTime = Number(curso.expiration_time_in_days);
+
+    if (isNaN(expirationTime) || expirationTime <= 0) {
+      toast.error(
+        "O tempo de expiração deve ser um número válido maior que zero."
+      );
+      return;
+    }
+
     setIsLoading(true);
     try {
       const token = accessToken;
-      await axios.post(`${BASE_URL}/courses/classes/`, curso, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      toast.success("Curso salvo com sucesso!");
+      const cursoAjustado = {
+        name: curso.name,
+        description: curso.description,
+        expiration_time_in_days: Number(curso.expiration_time_in_days),
+        required_for_function: curso.required_for_function,
+        is_active: curso.is_active,
+      };
+      if (itemToEdit) {
+        await axios.put(
+          `${BASE_URL}/courses/courses/admin/${itemToEdit.id}/`,
+          cursoAjustado,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        toast.success("Curso editado com sucesso!");
+      } else {
+        await axios.post(`${BASE_URL}/courses/courses/admin/`, cursoAjustado, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        toast.success("Curso criado com sucesso!");
+      }
       closeDialog();
       update();
     } catch (error) {
@@ -162,60 +149,53 @@ const CursosDialog = ({
         onChange={(value) => handleInputChange("name", value)}
         width="100%"
       />
-      <div
-        style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
-      >
-        <span>Máquina</span>
-        <Dropdown
-          onChange={(value) => handleInputChange("course", value.value)}
-          options={funcoes}
-          value={curso.course}
-          optionValue="id"
-          optionLabel="name"
-        />
-      </div>
-      <div
-        style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
-      >
-        <span>Conteúdo</span>
-        <Dropdown
-          onChange={(value) =>
-            handleInputChange("class_file_type", value.value)
-          }
-          options={conteudoOptions}
-          value={curso.class_file_type}
-          optionLabel="label"
-          optionValue="value"
-        />
-      </div>
-      <div
-        style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
-      >
-        <label htmlFor="file-upload">Arquivo</label>
-        <input
-          type="file"
-          id="file-upload"
-          onChange={handleFileUpload}
-          accept=".pdf,.mp4,.jpg,.png"
-        />
-        {isFileLoading && (
-          <div style={{ marginTop: 10 }}>
-            <ProgressSpinner
-              style={{ width: "20px", height: "20px" }}
-              strokeWidth="4"
-            />
-            <span>Carregando arquivo...</span>
-          </div>
-        )}
-      </div>
-      {/* <Input
-        label="Dias de Expiração"
-        value={curso.sequence_in_course.toString()}
+      <Input
+        label="Descrição"
+        value={curso.description}
+        onChange={(value) => handleInputChange("description", value)}
+        width="100%"
+      />
+      <Input
+        label="Tempo de expiração (dias)"
+        value={curso.expiration_time_in_days?.toString()}
         onChange={(value) =>
-          handleInputChange("sequence_in_course", parseInt(value) || 0)
+          handleInputChange("expiration_time_in_days", value)
         }
-        width="80px"
-      /> */}
+        width="100%"
+      />
+      <div
+        style={{
+          gap: 10,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <Checkbox
+          title="Necessário para função"
+          checked={curso.required_for_function}
+          onChange={(value) =>
+            handleInputChange("required_for_function", value.checked)
+          }
+        />
+        <span>Necessário para função </span>
+      </div>
+      <div
+        style={{
+          gap: 10,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          marginTop: 10,
+        }}
+      >
+        <Checkbox
+          title="Ativo"
+          checked={curso.is_active}
+          onChange={(value) => handleInputChange("is_active", value.checked)}
+        />
+        <span>Ativo</span>
+      </div>
     </Dialog>
   );
 };
