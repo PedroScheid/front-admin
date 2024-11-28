@@ -52,54 +52,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setRefreshToken(null);
   };
 
-  const verifyAccessToken = useCallback(async () => {
-    if (!accessToken) return false;
-
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/auth/token/verify/`,
-        { token: accessToken },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      return response.status === 200;
-    } catch (error) {
-      console.warn("Access token verification failed:", error);
-      return false;
-    }
-  }, [accessToken]);
-
-  const refreshAccessToken = useCallback(async () => {
-    if (!refreshToken) return;
-
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/auth/token/refresh/`,
-        { refresh: refreshToken },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      const newAccessToken = response.data.access;
-      setAccessToken(newAccessToken);
-      localStorage.setItem("authToken", newAccessToken);
-    } catch (error) {
-      console.error("Error refreshing access token:", error);
-      logout();
-    }
-  }, [refreshToken]);
-
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const isTokenValid = await verifyAccessToken();
-
-      if (!isTokenValid) {
-        await refreshAccessToken();
-      }
-    }, 1000 * 60);
-
-    return () => clearInterval(interval);
-  }, [verifyAccessToken, refreshAccessToken]);
-
   return (
     <AuthContext.Provider
       value={{

@@ -67,11 +67,15 @@ const Aulas = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      // Simulando exclusão bem-sucedida
+      await axios.delete(`${BASE_URL}/courses/classes/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       toast.success("Aula deletada com sucesso!");
-      refetch(); // Atualiza a lista após exclusão
+      refetch();
     } catch (error) {
-      console.error("Erro ao excluir treinamento:", error);
+      console.error("Erro ao excluir aula:", error);
       toast.error("Erro ao excluir aula");
     }
   };

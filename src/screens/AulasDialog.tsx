@@ -111,7 +111,7 @@ const AulasDialog = ({
       );
       formData.append("class_file_type", curso.class_file_type);
       formData.append("course", curso.course);
-      formData.append("class_file", file); // Adiciona o arquivo diretamente
+      formData.append("class_file", file);
 
       const token = accessToken;
       await axios.post(`${BASE_URL}/courses/classes/`, formData, {
