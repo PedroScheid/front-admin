@@ -51,7 +51,7 @@ const AulasDialog = ({
     sequence_in_course: 1,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [isFileLoading, setIsFileLoading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
 
   const { accessToken } = useAuth();
 
@@ -84,46 +84,44 @@ const AulasDialog = ({
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-
-      setIsFileLoading(true); // Inicia o estado de carregamento
-
-      reader.onload = () => {
-        if (reader.result) {
-          const base64String = reader.result.toString().split(",")[1]; // Extrai o conteúdo base64
-          setCurso((prev) => ({
-            ...prev,
-            class_file: base64String, // Salva o arquivo como base64
-          }));
-          toast.success("Arquivo carregado com sucesso!"); // Mensagem de sucesso
-        }
-        setIsFileLoading(false); // Finaliza o estado de carregamento
-      };
-
-      reader.onerror = () => {
-        toast.error("Erro ao processar o arquivo.");
-        setIsFileLoading(false); // Finaliza o estado de carregamento mesmo em erro
-      };
-
-      reader.readAsDataURL(file); // Lê o arquivo como Data URL (base64)
+      setFile(file); // Armazene apenas o arquivo
     }
   };
+
   const handleSave = async () => {
     if (!curso.name.trim()) {
       toast.error("Nome é obrigatório.");
       return;
     }
 
+    if (!file) {
+      toast.error("Arquivo é obrigatório.");
+      return;
+    }
+
     setIsLoading(true);
+
     try {
+      const formData = new FormData();
+      formData.append("name", curso.name);
+      formData.append("description", curso.description);
+      formData.append(
+        "sequence_in_course",
+        curso.sequence_in_course.toString()
+      );
+      formData.append("class_file_type", curso.class_file_type);
+      formData.append("course", curso.course);
+      formData.append("class_file", file); // Adiciona o arquivo diretamente
+
       const token = accessToken;
-      await axios.post(`${BASE_URL}/courses/classes/`, curso, {
+      await axios.post(`${BASE_URL}/courses/classes/`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      toast.success("Curso salvo com sucesso!");
+
+      toast.success("Aula salva com sucesso!");
       closeDialog();
       update();
     } catch (error) {
@@ -210,15 +208,6 @@ const AulasDialog = ({
           onChange={handleFileUpload}
           accept=".pdf,.mp4,.jpg,.png"
         />
-        {isFileLoading && (
-          <div style={{ marginTop: 10 }}>
-            <ProgressSpinner
-              style={{ width: "20px", height: "20px" }}
-              strokeWidth="4"
-            />
-            <span>Carregando arquivo...</span>
-          </div>
-        )}
       </div>
       {/* <Input
         label="Dias de Expiração"
