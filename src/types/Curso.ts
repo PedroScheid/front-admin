@@ -19,6 +19,7 @@ export interface Aula {
   sequence_in_course: number;
   class_file_type: "image" | "video" | "document" | string;
   class_file: string;
+  is_active: boolean;
 }
 
 export interface Setor {

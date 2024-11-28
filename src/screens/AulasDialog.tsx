@@ -17,6 +17,8 @@ interface CursosDialogProps {
   update: () => void;
 }
 
+type UploadStatus = "idle" | "uploading" | "success" | "error";
+
 const fetchCursos = async (accessToken: string | null): Promise<Curso[]> => {
   const response = await axios.get<Curso[]>(
     `${BASE_URL}/courses/courses/admin/`,
@@ -49,8 +51,11 @@ const AulasDialog = ({
     course: "",
     id: "",
     sequence_in_course: 1,
+    is_active: true,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<UploadStatus>("idle");
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [file, setFile] = useState<File | null>(null);
 
   const { accessToken } = useAuth();
@@ -73,6 +78,7 @@ const AulasDialog = ({
         course: "",
         id: "",
         sequence_in_course: 1,
+        is_active: true,
       });
     }
   }, [itemToEdit]);
@@ -100,6 +106,7 @@ const AulasDialog = ({
     }
 
     setIsLoading(true);
+    setStatus("uploading");
 
     try {
       const formData = new FormData();
@@ -111,15 +118,30 @@ const AulasDialog = ({
       );
       formData.append("class_file_type", curso.class_file_type);
       formData.append("course", curso.course);
+      formData.append("is_active", "true");
       formData.append("class_file", file);
 
       const token = accessToken;
-      await axios.post(`${BASE_URL}/courses/classes/`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      try {
+        await axios.post(`${BASE_URL}/courses/classes/`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const progress = progressEvent.total
+              ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+              : 0;
+            setUploadProgress(progress);
+          },
+        });
+        setUploadProgress(100);
+        setStatus("success");
+      } catch {
+        setStatus("error");
+        toast.error("Falha ao importar arquivo");
+        setUploadProgress(0);
+      }
 
       toast.success("Aula salva com sucesso!");
       closeDialog();
@@ -208,6 +230,19 @@ const AulasDialog = ({
           onChange={handleFileUpload}
           accept=".pdf,.mp4,.jpg,.png"
         />
+        {status === "uploading" && (
+          <div className="space-y-2">
+            <div className="h-2.5 w-full rounded-full bg-gray-200">
+              <div
+                className="h-2.5 rounded-full bg-blue-600 transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-600">
+              {uploadProgress}% Carregado...
+            </p>
+          </div>
+        )}
       </div>
       {/* <Input
         label="Dias de Expiração"
