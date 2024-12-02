@@ -34,7 +34,7 @@ const Login = () => {
       const response = await axios.post(`${BASE_URL}/auth/token/`, user);
       login(response.data.access, response.data.refresh);
       toast.success("Login bem-sucedido!");
-      navigate("/relatorios");
+      navigate("/cursos");
     } catch (error) {
       console.error("Erro no login:", error);
       toast.error("Usuário ou senha incorretos");

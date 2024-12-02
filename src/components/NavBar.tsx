@@ -24,7 +24,7 @@ const NavBar = () => {
   const startItems = useMemo(
     () => (
       <div style={{ flexDirection: "row", display: "flex", gap: 15 }}>
-        <Button
+        {/* <Button
           label="Relatórios"
           icon="pi pi-shield"
           onClick={() => handleButtonClick("/relatorios")}
@@ -32,7 +32,7 @@ const NavBar = () => {
             location.pathname === "/relatorios" ? "secondary" : "primary"
           }
         />
-        <Splitter />
+        <Splitter /> */}
         <Button
           label="Cursos"
           icon="pi pi-chart-bar"

@@ -122,28 +122,49 @@ const AulasDialog = ({
       formData.append("class_file", file);
 
       const token = accessToken;
+
       try {
-        await axios.post(`${BASE_URL}/courses/classes/`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress: (progressEvent) => {
-            const progress = progressEvent.total
-              ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
-              : 0;
-            setUploadProgress(progress);
-          },
-        });
-        setUploadProgress(100);
-        setStatus("success");
+        if (itemToEdit) {
+          await axios.put(
+            `${BASE_URL}/courses/classes/${itemToEdit.id}/`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+              onUploadProgress: (progressEvent) => {
+                const progress = progressEvent.total
+                  ? Math.round(
+                      (progressEvent.loaded * 100) / progressEvent.total
+                    )
+                  : 0;
+                setUploadProgress(progress);
+              },
+            }
+          );
+          toast.success("Aula editada com sucesso!");
+        } else {
+          await axios.post(`${BASE_URL}/courses/classes/`, formData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress: (progressEvent) => {
+              const progress = progressEvent.total
+                ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                : 0;
+              setUploadProgress(progress);
+            },
+          });
+          toast.success("Aula criada com sucesso!");
+        }
       } catch {
         setStatus("error");
         toast.error("Falha ao importar arquivo");
         setUploadProgress(0);
       }
 
-      toast.success("Aula salva com sucesso!");
       closeDialog();
       update();
     } catch (error) {

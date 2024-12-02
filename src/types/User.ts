@@ -56,6 +56,8 @@ export interface UsuarioCompleto {
   date_created: Date;
   last_login: Date;
   email: string;
+  serial_number: string;
+  about_me: string;
 }
 
 export interface UserFunction {

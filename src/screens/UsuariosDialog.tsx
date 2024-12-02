@@ -31,6 +31,8 @@ const UsuariosDialog = ({
     is_staff: true,
     is_superuser: true,
     last_login: new Date(),
+    about_me: "",
+    serial_number: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const { accessToken } = useAuth();
@@ -49,6 +51,8 @@ const UsuariosDialog = ({
         is_staff: true,
         is_superuser: true,
         last_login: new Date(),
+        about_me: "",
+        serial_number: "",
       });
     }
   }, [itemToEdit]);
@@ -119,6 +123,18 @@ const UsuariosDialog = ({
         value={usuario.name}
         width="100%"
         onChange={(value) => handleInputChange("name", value)}
+      />
+      <Input
+        label="Matrícula"
+        value={usuario.serial_number}
+        width="100%"
+        onChange={(value) => handleInputChange("serial_number", value)}
+      />
+      <Input
+        label="Descrição"
+        value={usuario.about_me}
+        width="100%"
+        onChange={(value) => handleInputChange("about_me", value)}
       />
     </Dialog>
   );
