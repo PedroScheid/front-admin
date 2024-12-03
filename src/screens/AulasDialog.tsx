@@ -218,7 +218,7 @@ const AulasDialog = ({
       <div
         style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
       >
-        <span>Curso</span>
+        <span>Aula</span>
         <Dropdown
           onChange={(value) => handleInputChange("course", value.value)}
           options={cursos}

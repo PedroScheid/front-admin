@@ -34,16 +34,18 @@ const NavBar = () => {
         />
         <Splitter /> */}
         <Button
-          label="Cursos"
-          icon="pi pi-chart-bar"
-          onClick={() => handleButtonClick("/cursos")}
-          buttonType={location.pathname === "/cursos" ? "secondary" : "primary"}
-        />
-        <Button
           label="Aulas"
           icon="pi pi-chart-bar"
           onClick={() => handleButtonClick("/aulas")}
           buttonType={location.pathname === "/aulas" ? "secondary" : "primary"}
+        />
+        <Button
+          label="Arquivos"
+          icon="pi pi-chart-bar"
+          onClick={() => handleButtonClick("/arquivos")}
+          buttonType={
+            location.pathname === "/arquivos" ? "secondary" : "primary"
+          }
         />
         <Button
           label="Máquinas de Usuários"

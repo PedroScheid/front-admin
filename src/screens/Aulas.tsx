@@ -11,7 +11,7 @@ import axios from "axios";
 import { BASE_URL } from "../server";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../context";
-import { Aula } from "../types";
+import { Aula, Curso } from "../types";
 import { confirmDialog } from "primereact/confirmdialog";
 import editIcon from "../icons/editar.png";
 import deleteIcon from "../icons/excluir.png";
@@ -25,6 +25,18 @@ const fetchAulas = async (accessToken: string | null): Promise<Aula[]> => {
   return response.data;
 };
 
+const fetchCursos = async (accessToken: string | null): Promise<Curso[]> => {
+  const response = await axios.get<Curso[]>(
+    `${BASE_URL}/courses/courses/admin/`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return response.data;
+};
+
 const Aulas = () => {
   const [visible, setVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Aula | undefined>();
@@ -32,12 +44,18 @@ const Aulas = () => {
 
   // Usando React Query para buscar dados
   const {
-    data: cursos = [],
+    data: aulas = [],
     refetch,
     isLoading,
   } = useQuery<Aula[], Error>({
     queryKey: ["aulas"],
     queryFn: () => fetchAulas(accessToken),
+    enabled: !!accessToken,
+  });
+
+  const { data: cursos = [] } = useQuery<Curso[], Error>({
+    queryKey: ["cursos"],
+    queryFn: () => fetchCursos(accessToken),
     enabled: !!accessToken,
   });
 
@@ -108,11 +126,17 @@ const Aulas = () => {
     );
   };
 
+  const getCurso = (rowData: Aula) => {
+    return cursos.length > 0
+      ? cursos.find((s) => s.id === rowData.course)?.name
+      : "";
+  };
+
   return (
     <div className="App">
       <NavBar />
       <DataTable
-        value={cursos}
+        value={aulas}
         tableStyle={{ width: "100vw", padding: "1rem" }}
         dataKey="id"
         header={
@@ -127,7 +151,7 @@ const Aulas = () => {
         <Column body={editBody} align="left" bodyStyle={{ width: 0 }} />
         <Column body={deleteBody} align="left" />
         <Column field="name" header="Nome" />
-        <Column field="sequence_in_course" header="Ordem no Curso" />
+        <Column header="Aula" body={(d) => getCurso(d)} />
         <Column field="class_file_type" header="Tipo de Arquivo" />
         <Column field="class_file" header="Arquivo" />
       </DataTable>

@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
 import { toast } from "react-toastify";
-import { Curso } from "../types";
+import { Curso, Funcao } from "../types";
 import { Button, Input } from "../components";
 import { ProgressSpinner } from "primereact/progressspinner";
 import axios from "axios";
 import { BASE_URL } from "../server";
 import { useAuth } from "../context";
 import { Checkbox } from "primereact/checkbox";
+import { Dropdown } from "primereact/dropdown";
+import { useQuery } from "@tanstack/react-query";
 
 interface CursosDialogProps {
   visible: boolean;
@@ -15,6 +17,15 @@ interface CursosDialogProps {
   itemToEdit?: Curso;
   update: () => void;
 }
+
+const fetchFuncoes = async (accessToken: string | null): Promise<Funcao[]> => {
+  const response = await axios.get<Funcao[]>(`${BASE_URL}/perms/function/`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return response.data;
+};
 
 const CursosDialog = ({
   visible,
@@ -33,10 +44,17 @@ const CursosDialog = ({
     last_modified_date: new Date(),
     modified_by: "",
     required_for_function: true,
+    function: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const { accessToken } = useAuth();
+
+  const { data: funcoes = [] } = useQuery<Funcao[], Error>({
+    queryKey: ["funcoes"],
+    queryFn: () => fetchFuncoes(accessToken),
+    enabled: !!accessToken,
+  });
 
   useEffect(() => {
     if (itemToEdit) {
@@ -53,6 +71,7 @@ const CursosDialog = ({
         last_modified_date: new Date(),
         modified_by: "",
         required_for_function: true,
+        function: "",
       });
     }
   }, [itemToEdit]);
@@ -85,6 +104,7 @@ const CursosDialog = ({
         expiration_time_in_days: Number(curso.expiration_time_in_days),
         required_for_function: curso.required_for_function,
         is_active: curso.is_active,
+        function: "1d93162d-6094-4232-a2f0-19db047ef925",
       };
       if (itemToEdit) {
         await axios.put(
@@ -155,6 +175,18 @@ const CursosDialog = ({
         onChange={(value) => handleInputChange("description", value)}
         width="100%"
       />
+      <div
+        style={{ display: "flex", flexDirection: "column", marginBottom: 10 }}
+      >
+        <span>Máquina</span>
+        <Dropdown
+          onChange={(value) => handleInputChange("function", value.value)}
+          options={funcoes}
+          value={curso.function}
+          optionValue="id"
+          optionLabel="name"
+        />
+      </div>
       <Input
         label="Tempo de expiração (dias)"
         value={curso.expiration_time_in_days?.toString()}

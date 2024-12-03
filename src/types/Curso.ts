@@ -9,6 +9,7 @@ export interface Curso {
   last_modified_date: Date;
   created_by: string;
   modified_by: string;
+  function: string;
 }
 
 export interface Aula {

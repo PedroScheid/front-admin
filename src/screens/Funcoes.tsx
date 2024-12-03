@@ -50,6 +50,7 @@ const Funcoes = () => {
     queryFn: () => fetchFuncoes(accessToken),
     enabled: !!accessToken,
   });
+  console.log("🚀 ~ Funcoes ~ funcoes:", funcoes);
 
   const { data: subSetores = [] } = useQuery<SubSetor[], Error>({
     queryKey: ["subsetor"],
